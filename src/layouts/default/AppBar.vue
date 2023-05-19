@@ -7,23 +7,37 @@
       Base Preset
     </v-app-bar-title>
   </v-app-bar>
-  <v-navigation-drawer app v-model="navigationDrawer">
+  <v-navigation-drawer temporary v-model="navigationDrawer">
     <v-list density="compact" nav>
-      <v-list-item prepend-icon="mdi-view-dashboard" title="Home" value="home"></v-list-item>
-      <v-list-item prepend-icon="mdi-forum" title="About" value="about"></v-list-item>
+      <v-list-item prepend-icon="mdi-home" title="Home" value="home" to="/"></v-list-item>
+      <v-list-item prepend-icon="mdi-login" title="Sign In" value="signIn" to="/auth/sign-in"></v-list-item>
+      <v-list-item prepend-icon="mdi-account-plus-outline" title="Register" value="register" to="/auth/register"></v-list-item>
+      <v-list-item v-if="isLoggedIn" prepend-icon="mdi-logout" title="Logout" value="logout" @click="handleSingOut"></v-list-item>
     </v-list>
   </v-navigation-drawer>
 </template>
 
-<script>
-import {ref} from "vue";
+<script setup>
+import { onMounted, ref } from "vue";
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
+import router from "@/router";
 
-export default {
-  setup() {
-    const navigationDrawer = ref(false)
-    return {
-      navigationDrawer,
+const isLoggedIn = ref(false)
+const navigationDrawer = ref(false)
+
+let auth;
+onMounted(() => {
+  auth = getAuth();
+  onAuthStateChanged(auth, (user) => {
+    if(user) {
+      isLoggedIn.value = true;
+    } else {
+      isLoggedIn.value = false;
     }
-  }
+  })
+})
+
+const handleSingOut = () => {
+  signOut(auth).then(() => {router.push("/auth/sign-in")})
 }
 </script>
