@@ -1,24 +1,32 @@
 <template>
-  <v-container class="fill-height">
+  <v-container fluid class="pt-10">
+    <v-row justify="space-around" class="my-5">
+      <div class="mx-auto font-weight-light text-h5">Sign In to Tackle Inventory</div>
+    </v-row>
     <v-row justify="space-around">
       <v-card
-        class="mx-auto"
+        class="mx-auto pa-2"
         width="400"
-        title="Login"
-        subtitle="Sign in with an existing account"
         elevation="10"
       >
-        <v-alert v-if="errorMessage" type="error">{{ errorMessage }}</v-alert>
-        <v-form ref="form">
+        <v-alert density="compact" class="ma-2" v-if="errorMessage" closable color="red">{{ errorMessage }}</v-alert>
+        <v-card-title></v-card-title>
+        <v-card-subtitle>Sign in with an existing account</v-card-subtitle>
+        <v-form ref="form" class="mt-2">
           <v-card-text>
             <v-text-field
+              density="compact"
+              variant="outlined"
               v-model="email"
               :rules="emailRules"
               label="Email"
               required
             ></v-text-field>
             <v-text-field
+              density="compact"
+              variant="outlined"
               v-model="password"
+              type="password"
               :rules="passwordRules"
               label="Password"
               required
@@ -68,7 +76,7 @@ const passwordRules = [
   p => (p && p.length >= 8) || 'Password must contain at least 8 characters!',
 ]
 const signIn = async() => {
-
+  errorMessage.value = "";
   if (await form.value.validate()) {
     signInWithEmailAndPassword(getAuth(), email.value, password.value)
       .then((data) => {

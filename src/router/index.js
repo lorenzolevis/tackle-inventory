@@ -24,12 +24,18 @@ const routes = [
       {
         path: 'register',
         name: 'Register',
-        component: () => import('@/views/auth/Register.vue')
+        component: () => import('@/views/auth/Register.vue'),
+        meta: {
+          authPath: true
+        }
       },
       {
         path: 'sign-in',
         name: 'SignIn',
-        component: () => import('@/views/auth/SignIn.vue')
+        component: () => import('@/views/auth/SignIn.vue'),
+        meta: {
+          authPath: true
+        }
       }
     ]
   }
@@ -64,5 +70,13 @@ router.beforeEach(async (to,from,next) => {
     next();
   }
 });
+
+router.afterEach(async (to) => {
+  if(to.matched.some((record) => record.meta.authPath)) {
+    if(await getCurrentUser()) {
+      router.push("/")
+    }
+  }
+})
 
 export default router

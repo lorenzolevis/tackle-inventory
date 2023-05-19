@@ -3,9 +3,14 @@
     <v-app-bar-nav-icon @click="navigationDrawer = !navigationDrawer"></v-app-bar-nav-icon>
     <v-app-bar-title>
       <v-icon icon="mdi-circle-slice-4" />
-      Base Preset
+      Tackle Inventory
     </v-app-bar-title>
-    <template v-if="user" v-slot:append>{{  user.email }}</template>
+    <template v-if="user" v-slot:append>
+      <div class="mx-2">
+        <v-avatar icon="mdi-account-circle"></v-avatar>
+        {{  user.displayName }}
+      </div>
+    </template>
   </v-app-bar>
   <v-navigation-drawer temporary v-model="navigationDrawer">
     <v-list density="compact" nav>
