@@ -8,7 +8,7 @@
         subtitle="Create a ne account"
         elevation="10"
     >
-
+      <v-alert v-if="errorMessage" type="error">{{ errorMessage }}</v-alert>
         <v-form ref="form">
           <v-card-text>
           <v-text-field
@@ -35,7 +35,7 @@
               color="primary"
               class="mt-4"
               block
-              @click="signInWithGoogle"
+              @click="registerWithGoogle"
               prepend-icon="mdi-google"
             > Sign In with Google
             </v-btn>
@@ -48,11 +48,15 @@
 </template>
 
 <script setup>
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
+import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import {ref} from "vue";
+import {useRouter} from "vue-router";
+
+const router = useRouter()
 
 const email = ref("")
 const password = ref("")
+const errorMessage = ref()
 const emailRules = [
   e => !!e || 'Email is required',
   e => (e && /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(e)) || 'Email not valid!',
@@ -62,16 +66,24 @@ const passwordRules = [
   p => (p && p.length >= 8) || 'Password must contain at least 8 characters!',
 ]
 
-const register = async () => {
-  const { valid } = await this.$refs.form.validate()
-  if (valid) alert('Form is valid')
+const registerWithGoogle = async () => {
+  errorMessage.value = "";
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(getAuth(), provider)
+    .then((result) => {
+      const user = result.user;
+      console.log(user);
+      router.push('/');
+    }).catch((error) => {
+      errorMessage.value = error.message;
+    });
 }
-const signInWithGoogle = async() => {
-  const { valid } = await this.$refs.form.validate()
+const register = async() => {
+  const { valid } = await this.$refs.form.validate();
   if (valid) {
     createUserWithEmailAndPassword(getAuth(), this.email, this.password)
-      .then((data) => {
-        this.$router.push('/')
+      .then(() => {
+        this.$router.push('/');
       })
   }
 }

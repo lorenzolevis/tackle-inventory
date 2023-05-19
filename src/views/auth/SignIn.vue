@@ -35,7 +35,7 @@
               color="primary"
               class="mt-4"
               block
-              @click="signIn"
+              @click="signInWithGoogle"
               prepend-icon="mdi-google"
             > Sign In with Google
             </v-btn>
@@ -48,13 +48,17 @@
 </template>
 
 <script setup>
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
+import {getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup} from 'firebase/auth'
 import {ref} from "vue";
-import router from "@/router";
+import {useRouter} from "vue-router";
+
+const router = useRouter()
 
 const email = ref("")
 const password = ref("")
 const errorMessage = ref()
+const form = ref()
+
 const emailRules = [
   e => !!e || 'Email is required',
   e => (e && /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(e)) || 'Email not valid!',
@@ -64,12 +68,10 @@ const passwordRules = [
   p => (p && p.length >= 8) || 'Password must contain at least 8 characters!',
 ]
 const signIn = async() => {
-  debugger;
-  const { valid } = await this.$refs.form.validate()
-  if (valid) {
-    signInWithEmailAndPassword(getAuth(), this.email, this.password)
+
+  if (await form.value.validate()) {
+    signInWithEmailAndPassword(getAuth(), email.value, password.value)
       .then((data) => {
-        debugger;
         router.push('/')
       })
       .catch((error) => {
@@ -90,6 +92,19 @@ const signIn = async() => {
         }
       })
   }
+}
+
+const signInWithGoogle = async () => {
+  errorMessage.value = "";
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(getAuth(), provider)
+    .then((result) => {
+      const user = result.user;
+      console.log(user);
+      router.push('/');
+    }).catch((error) => {
+    errorMessage.value = error.message;
+  });
 }
 </script>
 
