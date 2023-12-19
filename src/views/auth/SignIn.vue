@@ -12,19 +12,20 @@
         <v-alert density="compact" class="ma-2" v-if="errorMessage" closable color="red">{{ errorMessage }}</v-alert>
         <v-card-title></v-card-title>
         <v-card-subtitle>Sign in with an existing account</v-card-subtitle>
-        <v-form ref="form" class="mt-2">
+        <v-form v-model="form" validate-on="input" class="mt-2">
           <v-card-text>
             <v-text-field
               density="compact"
-              variant="outlined"
+              variant="solo-filled"
               v-model="email"
               :rules="emailRules"
               label="Email"
               required
             ></v-text-field>
             <v-text-field
+              class="mt-2"
               density="compact"
-              variant="outlined"
+              variant="solo-filled"
               v-model="password"
               type="password"
               :rules="passwordRules"
@@ -34,31 +35,25 @@
             <v-btn
               color="primary"
               class="mt-4"
-              block
+              block="true"
               @click="signIn"
-              prepend-icon="mdi-login"
-            > Login </v-btn>
-            <v-divider class="border-opacity-100 mt-4" color="primary"></v-divider>
-            <v-btn
-              color="primary"
-              class="mt-4"
-              block
-              @click="signInWithGoogle"
               prepend-icon="mdi-google"
-            > Sign In with Google
-            </v-btn>
+              :disabled="!form"
+            > Sign In with Google </v-btn>
           </v-card-text>
         </v-form>
-
       </v-card>
     </v-row>
   </v-container>
 </template>
 
 <script setup>
-import {getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup} from 'firebase/auth'
-import {ref} from "vue";
-import {useRouter} from "vue-router";
+import { useCredentials } from "@/composable/useCredential";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { login } from "@/firebase/user.js";
+
+const { credentials, perform } = useCredentials();
 
 const router = useRouter()
 
@@ -75,45 +70,11 @@ const passwordRules = [
   p => !!p || 'Password is required',
   p => (p && p.length >= 8) || 'Password must contain at least 8 characters!',
 ]
-const signIn = async() => {
-  errorMessage.value = "";
-  if (await form.value.validate()) {
-    signInWithEmailAndPassword(getAuth(), email.value, password.value)
-      .then((data) => {
-        router.push('/')
-      })
-      .catch((error) => {
-        console.log(error.code)
-        switch (error.code) {
-          case "auth/invalid-email":
-            errorMessage.value = "Invalid email"
-            break;
-          case "auth/user-not-found":
-            errorMessage.value = "User not found"
-            break;
-          case "auth/wrong-password":
-            errorMessage.value = "Incorrect password"
-            break;
-          default:
-            errorMessage.value = "Error or password was incorrect"
-            break;
-        }
-      })
-  }
-}
 
-const signInWithGoogle = async () => {
-  errorMessage.value = "";
-  const provider = new GoogleAuthProvider();
-  signInWithPopup(getAuth(), provider)
-    .then((result) => {
-      const user = result.user;
-      console.log(user);
-      router.push('/');
-    }).catch((error) => {
-    errorMessage.value = error.message;
-  });
-}
+const signIn = perform(async () => {
+  await login(credentials.email, credentials.password);
+  await router.push({ name: "project" });
+});
 </script>
 
 

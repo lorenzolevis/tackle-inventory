@@ -1,6 +1,5 @@
 // Composables
 import { createRouter, createWebHistory } from 'vue-router'
-import {getAuth, onAuthStateChanged} from "firebase/auth";
 
 const routes = [
   {
@@ -44,39 +43,6 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
-})
-
-const getCurrentUser = () => {
-  return new Promise((resolve, reject) => {
-    const removeListener = onAuthStateChanged(
-      getAuth(),
-      (user) => {
-        removeListener();
-        resolve(user);
-      },
-       reject
-    )
-  })
-};
-
-router.beforeEach(async (to,from,next) => {
-  if(to.matched.some((record) => record.meta.requiredAuth)) {
-    if (await getCurrentUser()) {
-      next();
-    } else {
-      next("/auth/sign-in")
-    }
-  } else {
-    next();
-  }
-});
-
-router.afterEach(async (to) => {
-  if(to.matched.some((record) => record.meta.authPath)) {
-    if(await getCurrentUser()) {
-      router.push("/")
-    }
-  }
 })
 
 export default router
