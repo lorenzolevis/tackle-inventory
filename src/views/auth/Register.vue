@@ -1,14 +1,17 @@
 <template>
-  <v-container class="fill-height">
+  <v-container fluid class="pt-10">
+    <v-row justify="space-around" class="my-5">
+      <div class="mx-auto font-weight-light text-h5">Sign up to Tackle Inventory</div>
+    </v-row>
     <v-row justify="space-around">
       <v-card
-        class="mx-auto"
+        class="mx-auto pa-2"
         width="400"
-        title="Registration"
-        subtitle="Create a ne account"
         elevation="10"
-    >
-      <v-alert v-if="errorMessage" type="error">{{ errorMessage }}</v-alert>
+      >
+        <v-alert density="compact" class="ma-2" v-if="errorMessage" closable color="red">{{ errorMessage }}</v-alert>
+        <v-card-title></v-card-title>
+        <v-card-subtitle>Register a new account</v-card-subtitle>
         <v-form ref="form">
           <v-card-text>
           <v-text-field
